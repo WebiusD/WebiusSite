@@ -1,0 +1,25 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Three.js GLTF Example</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+
+    <script type="importmap">
+        {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/"
+        }
+        }
+    </script>
+</head>
+<body>
+    <script type="module" src="{% static 'voltaire/main.js' %}"></script>
+</body>
+</html>

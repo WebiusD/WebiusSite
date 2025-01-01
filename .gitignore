@@ -1,0 +1,8 @@
+<<<<<<< HEAD
+=======
+context.txt
+django_commands.md
+basis_article.txt
+>>>>>>> 6c2a43acaa1861b345a622cf07101e8485a4ef31
+.*
+!.gitignore

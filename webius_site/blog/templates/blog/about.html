@@ -1,0 +1,21 @@
+{% extends "blog/base_footer.html" %}
+
+{% block body %}
+<div class="container body">   
+    <div class="row justify-content-center">
+
+        <p class="col-8 text-left">
+            Hi and welcome to my website. This is where I document and keep around some of my ideas and interests. These include, but are not limited to,
+            programming, computer science, embedded systems, electronics, optics, lasers, app development, games, fpgas, holography and digital signal processing.
+        </p>
+        
+
+        {% load static %}
+        <div class="col-4 text-right">
+            <img src="{% static 'blog/Me.jpg' %}" class="img-fluid img-thumbnail" width="150px" alt="Dennis Schwebius">
+        </div>
+
+
+    </div>
+</div>
+{% endblock %}
