@@ -1,0 +1,49 @@
+While you definetely could create try to play a text adventure using the normal ChatGPT interface, I want to represent my efforts of a more flexible approach using the LangChain Framework, which uses the OpenAI API backend. 
+While the resulting app is not exactly much better than simply feeding in the very same prompt to ChatGPT, it's a great learning experience to get more aquiainted with LangChain.
+We start by creating our model and a template for the prompt we want to feed into the it.
+
+<pre><code class="language-python\
+">
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.vectorstores import InMemoryVectorStore
+
+llm = ChatOpenAI(model="gpt-4o-mini")
+
+prompt = ChatPromptTemplate([
+    ("system", """\
+You are now the guide of a mystical journey in the Whispering Woods.
+The protagonist seeks the lost Gem of Serenity.
+You must navigate the protagonist through challenges, choices and consequences,
+dynamically adapting the tale based on the traveler's decisions.
+Your goal is to create a branching narrative experience where each choice
+leads to a new path, ultimately determining the protagonist's fate.
+     
+Here are some rules to follow:
+1. Start by explaining the setting and asks the player to choose some kind of weapons that will be used later in the game
+2. Have a few paths the lead to success
+3. Have some paths that lead to death. If the protagonist dies generate a response that explains the death. Terminate the the game with the words: 'Game over'.
+"""),
+    MessagesPlaceholder(variable_name="messages"),
+])
+</code></pre>
+LangChain provides some special syntax, which allows us to chain together seperate instances. The only preqesites for chaining are that each instance must implement the runnable interface. Also you should check that the output of the first object matches the expected input format of the following and so on. A chain is created using the pipe symbol:
+<pre><code class="language-python
+">
+runnable = prompt | llm
+</code></pre>
+The rational behind this statement is that (as you might have guessed) the prompt will be feed into the llm. We can later trigger our runnable by simply calling 'runnable.invoke(<input>)'.
+
+Similarily to chain we have the option to create graphs, where each node represents some kind of operation or action that will be performed. Nodes will be rendered as Python functions. At a later stage we can connect these nodes in arbitrary ways. The most popular type of graph is a state graph, which is based on a common state object all nodes have access to and act upon. In principle we are free to define this state ourselfes, but for easy applications the 'MessagesState' provided by LangChain is suitable. 
+<pre><code class="language-python
+">
+graph = StateGraph(state_schema=MessagesState)
+</code></pre>
+Now let's introduce our nodes. As I said nodes are simply python functions, but since all nodes should eventually act on a common state, they are more precisely functions, which always accept a state argument and should return a new state. Our first node should instruct the llm to continue the story for our text adventure game.
+<pre><code class="language-python
+">
+def continue_story(state: MessagesState):
+    ai_message = runnable.invoke(state)
+    return {"messages": ai_message}
+</code></pre>
+Ok I there is quite something to say about this function. First why can we simply pass the state to our runnable. Well, the good thing about states is, that they behave just like python dictionaries. So invoke, will essentially pass that dictionary to our prompt template and check if any key matches a placeholder in the template. If so it will be filled in and resulting prompt will be passed to the llm, which will return a AIMessage object. As said earlier we have to return a new state object. So you might have expected a constructor here, something along the lines: return MessagesState(...). However we once more use some LangChain magic which allows us to return a normal python dictionary which will automatically be converted into a MessagesState object for us. Also note that we only return a single key, value pair. However when constructing a state class you can specify how each field of that class should be updated. By default only fields which receive a new value will be updated and all others stay the same.

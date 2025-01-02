@@ -1,0 +1,63 @@
+A robot is a mechanical device that can execute tasks autonomously or with
+minimal human intervention. The category of robots that handles or interacts with objects in their
+environment are called manipulators. Manipulators consist of multiple segments called links, joints
+connecting two or more links and actuators that drive the links. Often times each joint features
+a dedicated actuator that controls the joint position. In such cases the terms joint and actuator
+are used interchangeably. Most manipulators also have an end-effector, that can interact with the
+environment. The arrangement of links, joints and actuators determines how the robot can move
+and is called its kinematic. By analyzing the kinematics of a robot we can gain insights about its
+range of motion, workspace limitations and how to control movements to achieve desired tasks.
+The robots forward kinematics govern, how the position of the end-effector can be computed, from
+a set of joint angles or joint displacements. It is essentially the process of calculating the position
+of each link in the workspace. The reverse problem, starts with the position of the end-effector and
+tries to compute a possible set of joint values (or displacements), required to achieve that posi-
+tion. The solution to this problem is governed by the robots inverse kinematics and is particularly
+useful in tasks such as path planning and trajectory generation. While the forward kinematics
+are unambiguous and fast to compute, the calculation of an inverse-kinematics-problem is much
+more involved. In fact, an inverse kinematics problem may have one, multiple (even infinite) or no
+solution.
+This work focuses onto a specific kind of manipulator, whos links are all connected in serial using
+rotary joints. A popular example of a serial manipulator is the UR10 from Universal Robots (see
+figure 5). If an end-effector were to be used, it would be attached to link 6. The fixed link is
+called the robots base. Such serial manipulators are among the most popular robots for industrial
+applications, because they are versatile and have a far range compared to their size.
+
+<div class="d-flex justify-content-center align-items-center">
+<img src="https://www.webius.site/static/blog/ur_kinematic_annot.jpg" style="width: 400px; margin-top: 10px; margin-bottom: 10px;">
+</div>
+
+The majority of serial manipulators feature six motored joints (or axis), providing them with six
+degrees of freedom. In general, the degrees of freedom of a mechanism with links and joints can
+be calculated using Grüblers formula [16]. In the following the term robot always refers to six-axis
+serial manipulators, unless explicitly stated otherwise. In order to instruct a robot to perform
+a certain task, it first needs to be teached. Teaching a robot involves either programming or
+training the robot to execute certain actions or responses. Both methods, rely on the definition
+of positions of the robot. The most rigorous way to define a position is by the specification of a
+value for each joint of the robot. As mentioned earlier, such a specification does, unambiguously
+determine the position of every single point in the robot’s kinematic chain. The position of the
+end-effector is no exception, and can be calculated by means of the robots forward kinematics. Such
+a clearly defined position is referred to as a configuration of the robot. However, when teaching a
+robot it’s hard to think in terms of joint values and the robot’s corresponding configuration. The
+position and orientation of the end-effector is an abstraction that is much easier to visualize and
+reason about. In robotics this is the pose of the end-effector. “The combination of position and
+orientation we call pose. A pose always needs to be defined with respect to some reference
+frame. Almost all robotic applications exclusively use orthonormal reference frames. Since an
+orthonormal reference frame always consist of mutually perpendicular basis vectors of length one,
+the remaining information is that of its position and orientation. Thus, reference frames can
+themselves be described as a pose. Under these constraints the quantities frame and pose comprise
+the same properties and can be used interchangeably. However, when we refer to a fixed coordinate
+system, they are still commonly referred to as frames.
+$$A$$ pose $$Q$$ that is defined with respect to a frame $$A$$, describes a new frame $$B$$ (see figure 6). Such
+a relative pose quantifies the transformation required to move from frame $$A$$ to $$B$$ and is denoted
+by A QB .An important property of relative poses, is that they can be composed, so A QB = A QC · C QB .
+That is, the pose B relative to A can be obtained by transforming B into an intermediary frame
+C and from there into the target frame A. Also a relative pose A QB will transform a vector given
+in frame B into a vector with respect to A:
+
+<div class="d-flex justify-content-center align-items-center">
+<img src="https://www.webius.site/static/blog/frame_transform.png" style="width: 400px; margin-top: 10px; margin-bottom: 10px;">
+</div>
+
+<div class="d-flex justify-content-center align-items-center">
+<img src="https://www.webius.site/static/blog/frame_transform_2.png" style="width: 400px; margin-top: 10px; margin-bottom: 10px;">
+</div>

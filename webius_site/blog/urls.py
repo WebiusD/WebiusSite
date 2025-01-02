@@ -11,5 +11,4 @@ urlpatterns = [
     path('create', views.create_article, name="create-article"),
     path('update/<slug:slug>', views.update_article, name="update-article"),
     path('convert', views.convert, name="convert"),
-    path('gpt', views.chat_gpt, name='chat-gpt'),
 ]

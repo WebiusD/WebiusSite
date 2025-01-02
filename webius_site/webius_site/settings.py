@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'blog.apps.BlogConfig',
-    'voltaire.apps.VoltaireConfig'
+    # 'voltaire.apps.VoltaireConfig',
 ]
 
 MIDDLEWARE = [

@@ -12,9 +12,18 @@ class Article(models.Model):
     description = models.TextField(default="Description")
     content = models.TextField()
 
+    previous_article = models.ForeignKey(
+        'self', on_delete=models.SET_NULL, related_name='previous_articles', null=True, blank=True, default=None
+    )
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title)
+
+        last_article = Article.objects.last()
+        if last_article and last_article != self:
+            self.previous_article = last_article
+
         super(Article, self).save(*args, **kwargs)
     
     def get_absolute_url(self):

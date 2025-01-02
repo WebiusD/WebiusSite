@@ -7,7 +7,7 @@ from .models import Article
 import json
 
 from .forms import ArticleForm
-from .util import get_prev_next_id, get_context, get_prev_next_article_by_slug, convert_markdown
+from .util import get_prev_next_article_by_slug, convert_markdown
 import code
 # Create your views here.
 
@@ -15,8 +15,12 @@ def home(request):
     # get the most recent article and render into post template
     latest_article = Article.objects.last()
 
-    prev_id, current_id, next_id = get_prev_next_id(latest_article.id) 
-    return render(request, 'blog/post.html', get_context(prev_id, current_id, next_id))
+    context = {
+        "article": latest_article,
+        "prev": latest_article.previous_article,
+        "next": latest_article.next_article
+    }
+    return render(request, 'blog/post.html', context)
 
 def articles(request):
     # list all articles
@@ -48,10 +52,6 @@ def write(request):
         "form_action": form_action,
         "form": form
     })
-# @login_required
-# def write(request):
-#     form_action = reverse('create-article')
-#     return render(request, 'blog/write.html', {"form_action": form_action, "title": "", "content": ""})
 
 @login_required
 def edit_article(request, slug):
