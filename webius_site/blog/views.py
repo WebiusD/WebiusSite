@@ -1,5 +1,5 @@
 from django.http import HttpResponse, HttpResponseNotAllowed, JsonResponse, HttpResponseRedirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
@@ -14,11 +14,12 @@ import code
 def home(request):
     # get the most recent article and render into post template
     latest_article = Article.objects.last()
+    next_article = Article.objects.filter(previous_article=latest_article).first()
 
     context = {
         "article": latest_article,
         "prev": latest_article.previous_article,
-        "next": latest_article.next_article
+        "next": next_article
     }
     return render(request, 'blog/post.html', context)
 
@@ -27,7 +28,14 @@ def articles(request):
     return render(request, 'blog/articles.html', {"articles" : Article.objects.all().order_by('-date')})
 
 def article(request, slug):
-    context = get_prev_next_article_by_slug(slug)
+    this_article= Article.objects.filter(slug=slug).first()
+    next_article = Article.objects.filter(previous_article=this_article).first()
+
+    context = {
+        "article": this_article,
+        "prev": this_article.previous_article,
+        "next": next_article
+    }
 
     return render(request, 'blog/post.html', context=context)
      #, "next_id": next_id, "next_title": next_title, "prev_id": prev_id, "prev_title": prev_title})
@@ -61,6 +69,18 @@ def edit_article(request, slug):
     return render(request, 'blog/write.html', {"form_action": form_action, "title": article_to_edit.title, "content": article_to_edit.content})
 
 @login_required
+@user_passes_test(lambda user: user.is_superuser)
+def delete_article(request, slug):
+    article = get_object_or_404(Article, slug=slug)
+    
+    if request.method == "POST":
+        article.delete()
+        messages.success(request, 'Article deleted successfully', extra_tags='alert-success')
+        return redirect('blog-home')  # Redirect to the home or article list page
+    
+    return render(request, 'blog/confirm_delete.html', {'article': article})
+
+@login_required
 def create_article(request):
     print("creating article")
 
@@ -68,7 +88,14 @@ def create_article(request):
         form = ArticleForm(request.POST)
 
         if form.is_valid():
-            article = form.save()
+            # Defer saving:
+            article = form.save(commit=False)
+            last_article = Article.objects.last()
+            if last_article and last_article != article:
+                article.previous_article = last_article
+            # Explicit save:
+            article.save()
+
             messages.success(request, 'Article submitted successfully', extra_tags='alert-success')
             return redirect('blog-article', slug=article.slug)  # Redirect to the article detail page
         else:

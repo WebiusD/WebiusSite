@@ -3,8 +3,28 @@
 }
 
 .fever-navbar {
-    min-height: 60px;
-    background-color: rgba(255, 255, 255, 0.6);
+    height: 80px;
+    background-color: #081120;
+    position: sticky; /* Make navbar sticky */
+    top: 0; /* Stick it to the top of the viewport */
+    z-index: 1000; /* Ensure navbar is on top of other content */
+    display: flex;
+    flex-direction: column; /* Stack the navbar items vertically */
+}
+
+.fever-navbar .navbar-nav .nav-link {
+    color: white !important; /* Set the text color to white */
+    font-weight: bold;
+}
+
+/* Change text color on hover */
+.fever-navbar .navbar-nav .nav-link:hover {
+    color: #ff6600 !important; /* Change text color to orange when hovered */
+}
+
+/* Style for the active (selected) navbar item */
+.fever-navbar .navbar-nav .nav-item.active .nav-link {
+    color: #683896 !important; /* Set the selected item color to purple */
 }
 
 .body{
@@ -48,32 +68,19 @@ footer .footer-nav {
     padding-top: 20px;
 }
 
-.circle {
-    width: 50px; /* Diameter of the circle */
-    height: 50px;
-    background-color: #db000099; /* rgba(255, 255, 255, 0.6);*/
-    border-bottom-right-radius: 50px; /* Quarter-circle on the top-left */
-    position: fixed;
-    top: 10px;
-    left: 0;
-    z-index: 0;
-     /* Fixed to the left */
-    /* clip-path: polygon(100% 0, 100% 100%, 0 100%); Quarter-circle clip-pat */
-}
-
 .progress-container {
     background-color: #f0f0f0;
     height: 10px;
     width: 100%;
     position: fixed;
-    top: 0;
+    top: 80px;
     left: 0;
-    z-index: 0;
+    z-index: 999;
 }
 
 .progress-bar {
-    background-color: #db000099;
+    background-color: #f76300;
     height: 100%;
-    min-width: 50px;
+    min-width: 0px;
     transition: width 0.2s ease-in-out;
 }

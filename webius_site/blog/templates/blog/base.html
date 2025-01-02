@@ -6,30 +6,34 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!--FAVICON-->
+    <!-- FAVICON -->
     <link rel="icon" href="{% static 'blog/favicon.ico' %}" type="image/x-icon">
 
-    <!-- BOOTSTRAP -->
+    <!-- BOOTSTRAP CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
-    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <!-- FONT AWESOME-->
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    
+    <!-- FONT AWESOME -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <!-- HIGHLIGHT-JS -->
+
+    <!-- HIGHLIGHT.JS (Code Highlighting) -->
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
-    <!-- STYLE -->
+
+    <!-- MAIN CSS -->
     <link rel="stylesheet" href="{% static 'blog/main.css' %}">
 
-    <!-- BOOTSTRAP -->
+    <!-- BOOTSTRAP JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
-    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
-    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-    <!-- MATHJAX Version 2 -->
+    <!-- MATHJAX -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
     <script>
         MathJax = {
             loader: {
@@ -43,63 +47,63 @@
         };
     </script>
 
-    <!-- MATHJAX Version 3 -->
-    <!-- <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script> -->
-
-    <!-- HIGHLIGHT-JS -->
+    <!-- HIGHLIGHT JS -->
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
     <script>hljs.highlightAll();</script>
 
-    <!-- HTML sanitizer -->
+    <!-- HTML Sanitizer -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.3/purify.min.js"></script>
 
     <title>Webius</title>
 </head>
 
 <body class="site">
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-light fever-navbar">
+        <div class="container">
+            <!-- Navbar Brand (Image) -->
+            <a class="navbar-brand" href="/">
+                <img src="{% static 'blog/logo.png' %}" alt="Webius Logo" height="60">
+            </a>
+
+            <!-- Navbar Links -->
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/articles">Blog</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about">About</a>
+                </li>
+
+                {% if user.is_superuser %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/write">Write</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+    <!-- NAVBAR -->
 
     <!-- PROGRESSBAR -->
     <div class="progress-container">
         <div class="progress-bar" id="progressBar"></div>
     </div>
-    <div class="circle"></div>
     <!-- PROGRESSBAR -->
 
-    <!--NAVBAR-->
-    <nav class="navbar navbar-expand-lg navbar-light fever-navbar">
-        <ul class="navbar-nav">
-            <a class="navbar-brand" href="/">@Webius</a>
-
-            <li class="nav-item active">
-                <a class="nav-link" href="/">Home</a>
-            </li>
-
-            <li class="nav-item mr-auto">
-                <a class="nav-link" href="/articles">Articles</a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="/about">About</a>
-            </li>
-
-            {% if user.is_superuser %}
-            <li class="nav-item">
-                <a class="nav-link" href="/write">Write</a>
-            </li>
-            {% endif %}
-        </ul>
-    </nav>
-    <!--NAVBAR-->
-
+    <!-- Display Messages -->
     {% if messages %}
     <ul class="messages">
         {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
         {% endfor %}
     </ul>
     {% endif %}
 
-
+    <!-- Body Content -->
     {% block body %}
     {% endblock %}
 
@@ -107,11 +111,11 @@
     {% endblock %}
 
     <footer>
-    {% block footer %}
-    {% endblock %}
+        {% block footer %}
+        {% endblock %}
     </footer>
 
-
+    <!-- Scroll Progress Bar -->
     <script>
         document.addEventListener('scroll', function() {
             const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
@@ -124,5 +128,31 @@
         });
     </script>
 
+    <!-- Update active navbar link -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Select all navbar links
+            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+
+            // Add click event listeners to each link
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    // Remove active class from all links
+                    navLinks.forEach(item => item.parentElement.classList.remove('active'));
+                    
+                    // Add active class to the clicked link's parent (the <li> element)
+                    this.parentElement.classList.add('active');
+                });
+            });
+
+            // Optional: Set the active class based on the current URL path
+            const currentPath = window.location.pathname;  // Get the current page path
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.parentElement.classList.add('active'); // Set active class based on path
+                }
+            });
+        });
+    </script>
 </body>
 </html>

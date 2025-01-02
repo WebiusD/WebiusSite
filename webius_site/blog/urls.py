@@ -8,6 +8,7 @@ urlpatterns = [
     path('about', views.about, name="blog-about"),
     path('write', views.write, name="blog-write"),
     path('edit/<slug:slug>', views.edit_article, name='edit-article'),
+    path('delete/<slug:slug>', views.delete_article, name='delete-article'),
     path('create', views.create_article, name="create-article"),
     path('update/<slug:slug>', views.update_article, name="update-article"),
     path('convert', views.convert, name="convert"),

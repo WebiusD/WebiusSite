@@ -1,6 +1,7 @@
 import os
 import sys
 import re
+from typing import NamedTuple, Callable, List
 import django
 
 # Set up the Django settings module
@@ -10,18 +11,77 @@ django.setup()
 
 from blog.models import Article
 
+class Conversion(NamedTuple):
+    pattern: str
+    replacement_fn: Callable[[re.Match], str]
+
+# the conversions applied in convert_markdown
+conversions = [
+    # Code:
+    Conversion(
+            pattern=r'```(.*?)\n(.*?)\n```',
+            replacement_fn=lambda match: (
+                f'<pre><code class="language-{match.group(1).strip()}">\n'
+                f'{match.group(2)}\n</code></pre>'
+            )
+        ),
+    # Headings:
+    Conversion(
+        pattern=r'^(#{1,6})\s*(.*?)\n',
+        replacement_fn=lambda match: (
+            f'<h{len(match.group(1))}>{match.group(2)}</h{len(match.group(1))}>'
+        )
+    ),
+    # Image-Links:
+    Conversion(
+        pattern=r'!\[(.*?)\]\((.*?)\s+"(.*?)"\)(?:\(s=(\d*\.?\d+)\))?',
+        replacement_fn=lambda match: (
+            f'<figure style="text-align: center;">'
+            f'<img src="/static/blog/{match.group(2)}" alt="{match.group(1)}" '
+            f'{"style='width:" + str(int(float(match.group(4)) * 100)) + "%; height:auto;" if match.group(4) else ""}>'
+            f'<figcaption>{match.group(3)}</figcaption>'
+            f'</figure>'
+        )
+    ),
+    # double astrisk emphasis:
+    Conversion(
+        pattern=r'\*\*(.*?)\*\*',
+        replacement_fn=lambda match: f'<strong>{match.group(1)}</strong>'
+    ),
+    # single astrisk emphasis:
+    Conversion(
+        pattern=r'\*(.*?)\*',
+        replacement_fn=lambda match: f'<em>{match.group(1)}</em>'
+    ),
+    # Conversion(
+    #     pattern=r'\$(.*?)\$',
+    #     replacement_fn=lambda match: f'<span class="math">{match.group(1)}</span>'
+    # ),
+    Conversion(
+        pattern=r'^\-\s(.*?)\n',
+        replacement_fn=lambda match: f'<li>{match.group(1)}</li>'
+    ),
+]
 
 def convert_markdown(orig):
-    code_pattern = r'```(.*?)\n(.*?)\n```'
+    result = orig
+    for conversion in conversions:
+        result = re.sub(conversion.pattern, conversion.replacement_fn, result, flags=re.MULTILINE | re.DOTALL)
 
-    def replace_code_block(match):
-        language = match.group(1).strip()
-        code_snippet = match.group(2)
-        replacement = f'<pre><code class="language-{language}">\n{code_snippet}\n</code></pre>'
-        return replacement
-
-    result = re.sub(code_pattern, replace_code_block, orig, flags=re.DOTALL)
+    # Wrap list items with <ul> tags
+    result = re.sub(r'(<li>.*?</li>)', r'<ul>\1</ul>', result, flags=re.DOTALL)
     return result
+
+    # code_pattern = r'```(.*?)\n(.*?)\n```'
+
+    # def replace_code_block(match):
+    #     language = match.group(1).strip()
+    #     code_snippet = match.group(2)
+    #     replacement = f'<pre><code class="language-{language}">\n{code_snippet}\n</code></pre>'
+    #     return replacement
+
+    # result = re.sub(code_pattern, replace_code_block, orig, flags=re.DOTALL)
+    # return result
 
 def main():
     if len(sys.argv) < 2:

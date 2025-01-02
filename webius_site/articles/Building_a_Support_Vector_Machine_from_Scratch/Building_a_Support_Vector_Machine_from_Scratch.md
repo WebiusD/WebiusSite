@@ -1,4 +1,3 @@
-# Building a Support Vector Machine from Scratch
 Support Vector Machines (SVM) are a type of supervised machine learning algorithm used primarily for classification tasks.
 The core idea behind SVM is to find the best boundary (or hyperplane) that separates a given set of data points, thus performing
 the classification. In general we are interested in finding a hyperplane, which separates the different classes with the maximum possible
@@ -78,8 +77,8 @@ However gradient descend cannot handle inequalities such as the one above. So we
 $$
 \begin{equation}
 \begin{cases}
-y_i (\mathbf{w x_i} + b) >= 1 & \text{then } \xi_i < 0 \text{ sample satisfies eq. 4}\\
-y_i (\mathbf{w x_i} + b) < 1 & \text{then } \xi_i > 0 \text{ sample does not satisfy eq. 4, slack is required}
+y_i (\mathbf{w x_i} + b) > 1 & \text{then } \xi_i < 0 \text{ sample satisfies eq. 4}\\
+y_i (\mathbf{w x_i} + b) <= 1 & \text{then } \xi_i > 0 \text{ sample does not satisfy eq. 4, slack is required}
 \end{cases}
 \end{equation}
 $$
@@ -103,9 +102,18 @@ $$
 \frac{\partial L}{\partial b} = C \cdot \Sigma_{i=1, \xi_i>0}^N y_i
 \end{align}
 $$
-Note that we can simply neglect all terms for which the hinge loss $\xi_i$ would be zero, because these terms are themselves zero.
+Note that we can simply neglect all terms for which the hinge loss $\xi_i$ would be zero, because these terms vanish. In fact, from our above considerations we see that only the terms for which:
+$y_i (\mathbf{w x_i} + b) <= 1$ holds contribute to the gradient (see eq. 9).
+And this is precisely the definition of **support vectors**. All vectors that influence the position and orientation of the decision boundary (aka. hyperplane) are called support vectors. Removing or modifying a support vector would change the decision boundary and/or the margin of the boundary.
 
 ### Implementation of the linear SVM classifier with gradient descend
+Using eq. 4, 11, 12 and 13 the implementation of the SVM classifer becomes straight forward. We simply construct a wrapper class, which holds the hyperparamter $C$, the variables $w$ and $b$ determined during training and the training data (feature vectors $X$ and labels $y$). We then subsequently implement the methods corresponding to the above equations:
+- eq. 4: corresponds to *_margin*
+- eq. 11: corresponds to *_cost* (could also be called loss)
+- eq. 12, 13: are used in the *fit* method (see dL_dw and dL_db)
+- eq. 2: corresponds to *predict*
+
+Here I called the right hand side of eq. 11 **cost** which produces a loss value for a given list of feature vectors $X$ and their labels $y$. 
 
 ```python
 import seaborn as sns
@@ -118,7 +126,7 @@ class LinearSVM:
     def __init__(self, C=1.0):
         self._support_vectors = None
         self.C = C
-        self.w = None
+        self.w = 0
         self.b = 0
         self.X = None
         self.y = None
@@ -129,20 +137,19 @@ class LinearSVM:
         # number of dimensions:
         self.n_dim = 0
     
-    def __decision_fn(self, X):
+    def _decision_fn(self, X):
         return X.dot(self.w) - self.b
     
-    def __margin(self, X, y):
-        return y * self.__decision_fn(X)
+    def _margin(self, X, y):
+        return y * self._decision_fn(X)
     
-    def __cost(self, margin):
+    def _cost(self, margin):
         return (1/2)* self.w.dot(self.w) + self.C * np.sum(np.maximum(0, 1-margin))
     
     def fit(self, X, y, lr=1e-3, epochs=500):
-        # for plotting:
+        # retain X and y for plotting:
         self.X = X
         self.y = y
-        #-------------
 
         self.n_data, self.n_dim = X.shape   # (100, 2) in our case
         self.w = np.random.randn(self.n_dim)
@@ -150,8 +157,8 @@ class LinearSVM:
 
         losses = []
         for _ in range(epochs):
-            margin = self.__margin(X, y)
-            loss = self.__cost(margin)
+            margin = self._margin(X, y)
+            loss = self._cost(margin)
             losses.append(loss)
 
             # compute the misclassified points, because these are the only ones where
@@ -167,38 +174,20 @@ class LinearSVM:
             self.w -= lr* dL_dw
             self.b -= lr* dL_db
 
-        self._support_vectors = np.where(self.__margin(X, y) <= 1)[0]
+        self._support_vectors = np.where(self._margin(X, y) <= 1)[0]
 
     def predict(self, X):
-        return np.sign(self.__decision_fn(X))
+        return np.sign(self._decision_fn(X))
     
     def score(self, X, y):
         P = self.predict(X)
         return np.mean(y == P)
-    
-    def plot_decision_boundary(self):
-        plt.scatter(self.X[:, 0], self.X[:, 1], c=self.y, s=50, cmap=plt.cm.Paired, alpha=.7)
-        ax = plt.gca()
-        xlim = ax.get_xlim()
-        ylim = ax.get_ylim()
-
-        # create grid to evaluate model
-        xx = np.linspace(xlim[0], xlim[1], 30)
-        yy = np.linspace(ylim[0], ylim[1], 30)
-        YY, XX = np.meshgrid(yy, xx)
-        xy = np.vstack([XX.ravel(), YY.ravel()]).T
-        Z = self.__decision_fn(xy).reshape(XX.shape)
-
-        # plot decision boundary and margins
-        ax.contour(XX, YY, Z, colors=['r', 'b', 'r'], levels=[-1, 0, 1], alpha=0.5,
-                    linestyles=['--', '-', '--'], linewidths=[2.0, 2.0, 2.0])
-
-        # highlight the support vectors
-        ax.scatter(self.X[:, 0][self._support_vectors], self.X[:, 1][self._support_vectors], s=100,
-                    linewidth=1, facecolors='none', edgecolors='k')
-
-        plt.show()
 ```
+The gradient descend optimization happens completely in the *fit* method. In each iteration or *epoch* we first filter our data points, for those which do not satisfy eq. 4 and hence are not properly classified (or at least have a too low distance to the decision boundary). Then we use these data points together with eq. 12 and 13 to compute the gradient. Finally we update $w$ and $b$ to move a tiny step (according to the *learning rate*) opposite to the direction of the gradient. Essentially some realy basic gradient descend algorithm. After the training loop, we update the *support vectors*, which are those which remain below the margin of the decision boundary when the training finishes.\
+We add the *predict* function according to eq. 2. Finally *score* will just count for how many sample points in $X$ the prediction *P* equals the correct label $y$ and divide that number by the number of all samples.\
+
+### Application of the linear SVM
+Let's now apply the SVM to some actual data. I will use the popular *Iris* data set, which contains features and labels of three distinct species of iris flowers. We use the scikit *LabelEncoder* to map the *species* label to a numerical category. However the *LabelEncoder* will by default return the labels 0 and 1, where 0 means not part of that species and 1 means is of species. Due to eq. 4 we require -1 and 1 as labels, so we have to apply our custom mapping.
 
 ```python
 def load_data(cols):
@@ -207,8 +196,10 @@ def load_data(cols):
  
     le = preprocessing.LabelEncoder()
     y = le.fit_transform(iris["species"])
-    # use -1 label instead of 0, the other label stays +1
-    y[y == 0] = -1
+    
+     # Map default labels (0, 1) to custom labels (-1, +1)
+    custom_mapping = {0: -1, 1: +1}
+    y = np.array([custom_mapping[label] for label in y])
     
     # drop the species column since it's now encoded in the labels y
     X = iris.drop(["species"], axis=1)
@@ -219,7 +210,10 @@ def load_data(cols):
  
     return X.values, y
 ```
-
+For simplicity and easier plotting we will also only consider two features of each flower. Here I have choosen the features *petal length* and *petal width*. For the curious: The petal is some specific leaf of iris flowers:\
+![Petal](petal.webp "Image of an iris flower.")\
+\
+Finally let's write the driver code to load the data and feed it through the SVM classifier.
 ```python
 if __name__ == "__main__":
     # only consider petal_length and petal_width:
@@ -229,9 +223,65 @@ if __name__ == "__main__":
     # scale the data:
     X = StandardScaler().fit_transform(X)
 
-    model = LinearSVM(C=15.0)
-    model.fit(X, y)
-    print(f"Train score: {model.score(X, y)}")
-
-    model.plot_decision_boundary()
+    C_params = [1.0, 5.0, 15.0, 500.0]
+    for C_param in C_params:
+        model = LinearSVM(C=C_param)
+        model.fit(X, y)
+        print(f"Score for C={C_param}: {model.score(X, y)}")
+        model.plot_decision_boundary()
+    
+    plt.show()
 ```
+I ran the SVM for multiple values $C$ to show it's effect. Recall that $C$ controlls the tradeoff between the intertwined goals of maximizing the margin and minimizing the loss. We can plot the results by adding this *plot* method to the *LinearSVM* class:
+```python
+class LinearSVM:
+    ...
+
+    def plot_decision_boundary(self):
+        # Scatter plot of the dataset with labels
+        plt.figure(figsize=(8, 6))
+        plt.scatter(
+            self.X[:, 0], self.X[:, 1], c=self.y, cmap=plt.cm.Paired, s=50, alpha=0.7
+        )
+        
+        ax = plt.gca()  # Get the current axis
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
+
+        # Create a dense grid for evaluating the decision function
+        xx = np.linspace(xlim[0], xlim[1], 100)
+        yy = np.linspace(ylim[0], ylim[1], 100)
+        YY, XX = np.meshgrid(yy, xx)
+        grid_points = np.vstack([XX.ravel(), YY.ravel()]).T
+        Z = self._decision_fn(grid_points).reshape(XX.shape)
+
+        # Plot decision boundary and margins
+        contour = ax.contour(
+            XX, YY, Z, levels=[-1, 0, 1], colors=['red', 'black', 'red'],
+            linestyles=['--', '-', '--'], linewidths=2
+        )
+        ax.clabel(contour, inline=True, fontsize=10, fmt={-1: '', 0: 'Decision Boundary', 1: ''})
+
+        # Highlight support vectors
+        plt.scatter(
+            self.X[self._support_vectors, 0], self.X[self._support_vectors, 1],
+            s=150, linewidth=1.5, facecolors='none', edgecolor='blue', label='Support Vectors'
+        )
+
+        plt.title(f"SVM decision boundary C={self.C}", fontsize=14)
+        plt.xlabel("petal_length", fontsize=12)
+        plt.ylabel("petal_width", fontsize=12)
+        plt.legend(loc='upper right')
+        plt.grid(True, linestyle='--', alpha=0.6)
+```
+
+| ![Alt 1](C=1.png) | ![Alt 2](C=5.png) |
+|-----------------|----------------|
+| ![Alt 1](C=15.png) | ![Alt 2](C=500.png) |
+
+Note how a higher value for $C$ reduces the loss and thereby the misclassification on the training data. At the same time the margin of the decision boundary shrinks, which leaves more room for error on unseen data. So in a way $C$ allows us to control how stongly we fit the SVM to our training data. A high $C$ will yield good results on the training data, but only allow for a low margin, which is bad since new feature vectors are more easily misclassified.\
+
+### Coming up next
+At the beginning of this post we stated that we will focus on SVM's with linear decision boundaries. But depending on the data a curved decision boundary could make a lot of sense. Consider for example this data set:\
+![Petal](moons.png "Image of an iris flower.")\
+In the next part we will find out how we can expand our SVM to allow it to learn arbitrary decision boundaries.
