@@ -120,6 +120,26 @@ pre code {
     background-color: rgb(40, 40, 49);
 }
 
+.card-meta-icons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px; /* Add spacing between each meta item */
+    margin-bottom: 10px;
+}
+
+.card-meta {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #ccc; /* Adjust color for better contrast */
+}
+
+.card-meta i {
+    margin-right: 5px; /* Add spacing between icon and text */
+    color: #f76300; /* Use a consistent color for icons */
+}
+
 footer{
     background-color: rgb(80, 80, 80);
     /* padding-top: 10px; */
@@ -154,14 +174,14 @@ footer .footer-nav {
 
 /* Style all anchor tags to have white text */
 a {
-    color: white; /* Set link color to white */
+    color: rgb(236, 236, 236); /* Set link color to white */
     text-decoration: none; /* Remove underline */
     transition: color 0.3s ease; /* Smooth transition for hover effects */
 }
 
 /* Change color on hover */
 a:hover {
-    color: #ff6600; /* Bright color on hover */
+    color: #ffffff; /* Bright color on hover */
     text-decoration: underline; /* Add underline on hover */
 }
 

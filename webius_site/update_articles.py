@@ -1,5 +1,4 @@
 import os
-import os
 import sys
 import django
 
@@ -8,11 +7,29 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'webius_site.settings')  # Replace 'webius_site.settings' with your settings module if different
 django.setup()
 
+from dotenv import load_dotenv
+load_dotenv()
+
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+
 from pathlib import Path
 import argparse
+
 from django.utils.text import slugify
 from blog.models import Article
 from convert import convert_markdown
+
+llm = ChatOpenAI(model='gpt-4o-mini')
+summarize_prompt = ChatPromptTemplate.from_messages([
+    ("system", """\
+You create a short summary for blog posts.
+"""),
+    ("user", """\
+Consider the following blog post. Summarize it in an enjoyable and amusing manner. Be concise do not write more than 50 words:
+{content}
+""")
+])
 
 def clear_database():
     """Clears all data from the database.
@@ -23,8 +40,8 @@ def clear_database():
     except Exception as e:
         print(f"An error occurred while clearing the database: {e}")
 
-def update_content(debug):
-    """Loops over all directories in ./articles and processes files to create Articles in the database.
+def update(debug):
+    """Loops over all directories in ./articles and processes files to create/update the Articles in the database.
     """
     last_article = None
     base_dir = Path('./articles')
@@ -51,9 +68,11 @@ def update_content(debug):
                 slug=slug,
                 defaults={'title': title, 'content': content}
             )
-            # if prev is not None:
-            #     article.previous_article = prev
-            #     article.save() 
+            # If description is empty or None, generate it
+            if not article.description:
+                description = get_llm_summary(content)
+                article.description = description
+                article.save() 
             last_article = article
             print(f"{'Created' if created else 'Updated'} Article: {title} from converted file")
             continue
@@ -78,13 +97,14 @@ def update_content(debug):
                 slug=slug,
                 defaults={'title': title, 'content': converted_content}
             )
+            if not article.description:
+                description = get_llm_summary(content)
+                article.description = description
+                article.save() 
             if debug:
                 with open(f"articles/debug/debug_{title}.txt", "w") as f:
                     f.write(converted_content)
 
-            # if prev is not None:
-            #     article.previous_article = prev
-            #     article.save() 
             last_article = article
             print(f"{'Created' if created else 'Updated'} Article: {title} from markdown file")
         else:
@@ -95,6 +115,9 @@ def update_content(debug):
     first_article.prev = last_article
     first_article.save()
 
+def get_llm_summary(content):
+    response = (summarize_prompt | llm).invoke({"content": content})
+    return response.content
 
 if __name__ == "__main__":
     # Parse arguments
@@ -104,4 +127,4 @@ if __name__ == "__main__":
 
     # Clear the database and build articles
     # clear_database()
-    update_content(debug=args.debug)
+    update(debug=args.debug)
