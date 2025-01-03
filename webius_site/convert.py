@@ -26,7 +26,7 @@ conversions = [
     Conversion(
         pattern=r'```(.*?)\n(.*?)\n```',
         replacement_fn=lambda match: (
-            f'<pre><code class="language-{match.group(1).strip()}">\n'
+            f'<pre><code class="language-{match.group(1).strip()}">'
             f'{match.group(2)}\n</code></pre>'
         )
     ),

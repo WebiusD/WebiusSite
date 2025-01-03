@@ -23,7 +23,7 @@ def clear_database():
     except Exception as e:
         print(f"An error occurred while clearing the database: {e}")
 
-def build_articles(debug):
+def update_content(debug):
     """Loops over all directories in ./articles and processes files to create Articles in the database.
     """
     last_article = None
@@ -103,5 +103,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Clear the database and build articles
-    clear_database()
-    build_articles(debug=args.debug)
+    # clear_database()
+    update_content(debug=args.debug)

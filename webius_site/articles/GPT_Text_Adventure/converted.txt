@@ -29,8 +29,7 @@ Here are some rules to follow:
 </code></pre>
 LangChain provides some special syntax, which allows us to chain together seperate instances. The only preqesites for chaining are that each instance must implement the runnable interface. Also you should check that the output of the first object matches the expected input format of the following and so on. A chain is created using the pipe symbol:
 <pre><code class="language-python
-">
-runnable = prompt | llm
+">runnable = prompt | llm
 </code></pre>
 The rational behind this statement is that (as you might have guessed) the prompt will be feed into the llm. We can later trigger our runnable by simply calling 'runnable.invoke(<input>)'.
 

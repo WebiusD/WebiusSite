@@ -104,8 +104,7 @@ And this is precisely the definition of <strong>support vectors</strong>. All ve
 <ul><li>eq. 4: corresponds to <i>_margin</i></li></ul><ul><li>eq. 11: corresponds to <i>_cost</i> (could also be called loss)</li></ul><ul><li>eq. 12, 13: are used in the <i>fit</i> method (see dL_dw and dL_db)</li></ul><ul><li>eq. 2: corresponds to <i>predict</i></li></ul>
 Here I called the right hand side of eq. 11 <strong>cost</strong> which produces a loss value for a given list of feature vectors $X$ and their labels $y$. 
 
-<pre><code class="language-python">
-import seaborn as sns
+<pre><code class="language-python">import seaborn as sns
 from sklearn import preprocessing
 from sklearn.preprocessing import StandardScaler
 import numpy as np
@@ -176,8 +175,7 @@ The gradient descend optimization happens completely in the </i>fit<i> method. I
 
 <h3 style="margin-top: 20px;">Application of the linear SVM</h3>Let's now apply the SVM to some actual data. I will use the popular </i>Iris<i> data set, which contains features and labels of three distinct species of iris flowers. We use the scikit </i>LabelEncoder<i> to map the </i>species<i> label to a numerical category. However the </i>LabelEncoder<i> will by default return the labels 0 and 1, where 0 means not part of that species and 1 means is of species. Due to eq. 4 we require -1 and 1 as labels, so we have to apply our custom mapping.
 
-<pre><code class="language-python">
-def load_data(cols):
+<pre><code class="language-python">def load_data(cols):
     iris = sns.load_dataset("iris")
     iris = iris.tail(100)
  
@@ -198,8 +196,7 @@ def load_data(cols):
     return X.values, y
 </code></pre>
 For simplicity and easier plotting we will also only consider two features of each flower. Here I have choosen the features </i>petal length<i> and </i>petal width<i>. For the curious: The petal is some specific leaf of iris flowers:<br><figure style="text-align: center;"><img src="/static/blog/petal.webp" alt="Petal" style='width:40%; height:auto;'><figcaption>Image of an iris flower.</figcaption></figure><br>Finally let's write the driver code to load the data and feed it through the SVM classifier.
-<pre><code class="language-python">
-if __name__ == "__main__":
+<pre><code class="language-python">if __name__ == "__main__":
     # only consider petal_length and petal_width:
     cols = ["petal_length", "petal_width"]
     X, y = load_data(cols)
@@ -217,8 +214,7 @@ if __name__ == "__main__":
     plt.show()
 </code></pre>
 I ran the SVM for multiple values of $C$ to show it's effect. Recall that $C$ controlls the tradeoff between the intertwined goals of maximizing the margin and minimizing the loss. We can plot the results by adding this </i>plot<i> method to the </i>LinearSVM* class:
-<pre><code class="language-python">
-class LinearSVM:
+<pre><code class="language-python">class LinearSVM:
     ...
 
     def plot_decision_boundary(self):

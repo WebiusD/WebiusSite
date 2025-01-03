@@ -1,6 +1,23 @@
-/* .site{
-    background-color: #060b16;; light color: rgb(248, 240, 222); 
-} */
+.toggle-btn {
+    background: none; /* Ensure no background interference */
+    border: none;
+    font-size: 1.5rem; /* Adjust as needed */
+    color: rgb(240, 240, 240);
+    cursor: pointer;
+    outline: none;
+    margin-top: 2px;
+    padding-bottom: 5px;
+    transition: color 0.3s ease;
+}
+
+.toggle-btn:hover {
+    color: #ff6600 !important; /* Change text color to orange when hovered */
+}
+
+.toggle-btn:focus {
+    outline: none;
+}
+
 body.dark-mode {
     background-color: #070d1a;
     color: rgb(190, 190, 190);
@@ -46,6 +63,7 @@ body.light-mode {
 .fever-navbar .navbar-nav .nav-link {
     color: rgb(240, 240, 240) !important; /* Set the text color to white */
     font-weight: bold;
+    transition: color 0.3s ease;
 }
 
 /* Change text color on hover */
@@ -89,8 +107,17 @@ pre code {
     text-align: left;
 }
 
+.card {
+    border-radius: 15px; /* Adjust the value as needed */
+    overflow: hidden;    /* Ensures child elements don't overflow the rounded corners */
+}
+
 .card-body{
-    background-color: green;
+    background-color: #68696d;
+}
+
+.card-footer{
+    background-color: rgb(40, 40, 49);
 }
 
 footer{
@@ -124,3 +151,17 @@ footer .footer-nav {
     min-width: 0px;
     transition: width 0.2s ease-in-out;
 }
+
+/* Style all anchor tags to have white text */
+a {
+    color: white; /* Set link color to white */
+    text-decoration: none; /* Remove underline */
+    transition: color 0.3s ease; /* Smooth transition for hover effects */
+}
+
+/* Change color on hover */
+a:hover {
+    color: #ff6600; /* Bright color on hover */
+    text-decoration: underline; /* Add underline on hover */
+}
+
