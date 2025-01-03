@@ -17,19 +17,24 @@ class Conversion(NamedTuple):
 
 # the conversions applied in convert_markdown
 conversions = [
+    # Conversion for replacing markdown{} blocks with content inside HTML comments
+    Conversion(
+        pattern=r'markdown\{.*?\}\s*<!--(.*?)-->',
+        replacement_fn=lambda match: match.group(1).strip()
+    ),
     # Code:
     Conversion(
-            pattern=r'```(.*?)\n(.*?)\n```',
-            replacement_fn=lambda match: (
-                f'<pre><code class="language-{match.group(1).strip()}">\n'
-                f'{match.group(2)}\n</code></pre>'
-            )
-        ),
+        pattern=r'```(.*?)\n(.*?)\n```',
+        replacement_fn=lambda match: (
+            f'<pre><code class="language-{match.group(1).strip()}">\n'
+            f'{match.group(2)}\n</code></pre>'
+        )
+    ),
     # Headings:
     Conversion(
         pattern=r'^(#{1,6})\s*(.*?)\n',
         replacement_fn=lambda match: (
-            f'<h{len(match.group(1))}>{match.group(2)}</h{len(match.group(1))}>'
+            f'<h{len(match.group(1))} style="margin-top: 20px;">{match.group(2)}</h{len(match.group(1))}>'
         )
     ),
     # Image-Links:
@@ -50,22 +55,31 @@ conversions = [
     ),
     # double asterisk emphasis:
     Conversion(
-        pattern=r'\*\*(.*?)\*\*',
+        pattern=r'\*\*([^*]+)\*\*',
         replacement_fn=lambda match: f'<strong>{match.group(1)}</strong>'
     ),
     # single asterisk emphasis:
     Conversion(
-        pattern=r'\*(.*?)\*',
-        replacement_fn=lambda match: f'<em>{match.group(1)}</em>'
+        pattern=r'\*([^*]+)\*',
+        replacement_fn=lambda match: f'<i>{match.group(1)}</i>'
     ),
-    # Conversion(
-    #     pattern=r'\$(.*?)\$',
-    #     replacement_fn=lambda match: f'<span class="math">{match.group(1)}</span>'
-    # ),
+    # Lists:
     Conversion(
         pattern=r'^\-\s(.*?)\n',
         replacement_fn=lambda match: f'<li>{match.group(1)}</li>'
     ),
+    # Newlines:
+    # Match \ followed by \n, not inside $...$ or $$...$$
+    Conversion(
+        pattern=r'(?<!\$)(?<!\$\$)\\\n(?!\$)(?!\$\$)',
+        replacement_fn=lambda match: '<br>'
+    )
+
+    # Math
+        # Conversion(
+    #     pattern=r'\$(.*?)\$',
+    #     replacement_fn=lambda match: f'<span class="math">{match.group(1)}</span>'
+    # ),
 ]
 
 def convert_table(markdown_table: str) -> str:

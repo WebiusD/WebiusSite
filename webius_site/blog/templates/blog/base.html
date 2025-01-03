@@ -17,7 +17,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <!-- HIGHLIGHT.JS (Code Highlighting) -->
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+    <!-- <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/night-owl.min.css">
 
     <!-- MAIN CSS -->
     <link rel="stylesheet" href="{% static 'blog/main.css' %}">
@@ -60,31 +61,44 @@
 <body class="site">
     <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-light fever-navbar">
-        <div class="container">
+        
             <!-- Navbar Brand (Image) -->
             <a class="navbar-brand" href="/">
                 <img src="{% static 'blog/logo.png' %}" alt="Webius Logo" height="60">
             </a>
 
-            <!-- Navbar Links -->
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/articles">Blog</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/about">About</a>
-                </li>
+            <!-- Navbar Toggle Button (Hamburger) -->
+            <button class="navbar-toggler navbar-dark" type="button" data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-                {% if user.is_superuser %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/write">Write</a>
-                </li>
-                {% endif %}
-            </ul>
-        </div>
+            <!-- Navbar Links (Collapsible) -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/articles">Blog</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+
+                    {% if user.is_superuser %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/write">Write</a>
+                    </li>
+                    {% endif %}
+
+                    <li class="nav-item">
+                        <button class="toggle-btn" onclick="toggleMode()">🌙</button>
+                    </li>
+                </ul>
+            </div>
+
+        
     </nav>
     <!-- NAVBAR -->
 
@@ -153,6 +167,33 @@
                 }
             });
         });
+    </script>
+
+    <!-- Toggle Light/Dark mode -->
+    <script>
+        // Initialize the current mode based on localStorage or default to dark mode
+        window.onload = function() {
+            const mode = localStorage.getItem('mode') || 'dark';
+            document.body.classList.add(mode + '-mode');
+            document.querySelector('nav').classList.add(mode + '-mode');
+        }
+
+        // Function to toggle the mode
+        function toggleMode() {
+            const body = document.body;
+            const nav = document.querySelector('nav');
+
+            // Toggle between dark and light mode
+            if (body.classList.contains('dark-mode')) {
+                body.classList.replace('dark-mode', 'light-mode');
+                nav.classList.replace('dark-mode', 'light-mode');
+                localStorage.setItem('mode', 'light');  // Store the current mode
+            } else {
+                body.classList.replace('light-mode', 'dark-mode');
+                nav.classList.replace('light-mode', 'dark-mode');
+                localStorage.setItem('mode', 'dark');  // Store the current mode
+            }
+        }
     </script>
 </body>
 </html>

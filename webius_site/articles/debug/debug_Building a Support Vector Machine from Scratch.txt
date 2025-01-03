@@ -29,8 +29,7 @@ label $y_i$: $(x_i, y_i)$. Where $x_i$ is a column vector with n features. Hence
 $$
 \begin{equation}
 \begin{cases}
-wx_i - b \geq +1 & \text{if } y_i = +1\\\
-wx_i - b \leq -1 & \text{if } y_i = -1
+wx_i - b \geq +1 & \text{if } y_i = +1\\<br>wx_i - b \leq -1 & \text{if } y_i = -1
 \end{cases}
 \end{equation}
 $$
@@ -52,8 +51,7 @@ L = min \left( \frac{1}{2} ||w||^2 \right)
 $$
 which is equivalent, but does allow us to perform quadratic optimizations later on. Eq. 5 represents our primal loss function which we need to minimize in order to find a good hyperplane. It is the loss function for the hard margin classifier.
 
-### Dealing with noise
-As you know real world data sets are far from perfect and exhibit missing data points and noise. So how can we deal with misclassifications introduced due to noise in our data and still obtain a good classifier? In order to tolerate misclassifications up to a certain point, we expand eq. 5 by introducing slack variables $\xi_i$. These
+<h3 style="margin-top: 20px;">Dealing with noise</h3>As you know real world data sets are far from perfect and exhibit missing data points and noise. So how can we deal with misclassifications introduced due to noise in our data and still obtain a good classifier? In order to tolerate misclassifications up to a certain point, we expand eq. 5 by introducing slack variables $\xi_i$. These
 slack variables soften the inequality constraint by allowing certain feature vectors to violate the margin.
 $$
 \begin{equation}
@@ -66,8 +64,7 @@ $$
 min \left( \frac{1}{2} ||w||^2 + C \cdot \Sigma_{i=1}^N \xi_i^k \right)
 \end{equation}
 $$
-Here we also introduced the hyperparamter C, which balances the cost of misclassifications. For $C=0$ the algorithm will only maximize the margin, for $C=\infty$ the size of the margin is neglected and the algorithm will just try to minize the loss. So C controls the trade-off between maximizing the margin and minimizing the loss. $k$ is another hyperparameter which controls the impact of the slack variables and is typically selected to be 1 or 2. Since we now allow some data points to fall within the margin or even the wrong side of the hyperplane, this is the loss used in a soft margin classifier (in contrast to the hard margin classifier).\
-We would like to include the constraint given by eq. 6 into our loss function so we can then solve it using gradient descend. So let's solve eq. 6 for $\xi_i$
+Here we also introduced the hyperparamter C, which balances the cost of misclassifications. For $C=0$ the algorithm will only maximize the margin, for $C=\infty$ the size of the margin is neglected and the algorithm will just try to minize the loss. So C controls the trade-off between maximizing the margin and minimizing the loss. $k$ is another hyperparameter which controls the impact of the slack variables and is typically selected to be 1 or 2. Since we now allow some data points to fall within the margin or even the wrong side of the hyperplane, this is the loss used in a soft margin classifier (in contrast to the hard margin classifier).<br>We would like to include the constraint given by eq. 6 into our loss function so we can then solve it using gradient descend. So let's solve eq. 6 for $\xi_i$
 $$
 \begin{equation}
 \xi_i \geq 1 - y_i (\mathbf{w} \mathbf{x_i} - b)
@@ -77,8 +74,7 @@ However gradient descend cannot handle inequalities such as the one above. So we
 $$
 \begin{equation}
 \begin{cases}
-y_i (\mathbf{w x_i} + b) > 1 & \text{then } \xi_i < 0 \text{ and sample satisfies eq. 4} \\\
-y_i (\mathbf{w x_i} + b) \leq 1 & \text{then } \xi_i > 0 \text{ and sample does not satisfy eq. 4, slack is required}
+y_i (\mathbf{w x_i} + b) > 1 & \text{then } \xi_i < 0 \text{ and sample satisfies eq. 4} \\<br>y_i (\mathbf{w x_i} + b) \leq 1 & \text{then } \xi_i > 0 \text{ and sample does not satisfy eq. 4, slack is required}
 \end{cases}
 \end{equation}
 $$
@@ -97,24 +93,18 @@ $$
 Note how this formulation allowed us to encode the contraints given by eq. 4 into our loss function. Thus we are no longer concerned with two simultaneous problems, but can no focus on minimizing $L$ and thereby solve the optimization problem. The first part of our loss function is fully differentiable and since the hinge loss function is subdifferentiable the combined loss function is now suitable for gradient descend. This is simply done by computing the partial derivatives of L with respect to $w$ and $b$, because these are the parameters we want to find.
 $$
 \begin{align}
-\frac{\partial L}{\partial w} = w - C \cdot \Sigma_{i=1,\xi_i>0}^N y_i x_i \\
-\frac{\partial L}{\partial b} = C \cdot \Sigma_{i=1, \xi_i>0}^N y_i
+\frac{\partial L}{\partial w} = w - C \cdot \Sigma_{i=1,\xi_i>0}^N y_i x_i \<br>\frac{\partial L}{\partial b} = C \cdot \Sigma_{i=1, \xi_i>0}^N y_i
 \end{align}
 $$
 Note that we can simply neglect all terms for which the hinge loss $\xi_i$ would be zero, because these terms vanish. In fact, from our above considerations we see that only the terms for which:
 $y_i (\mathbf{w x_i} + b) <= 1$ holds contribute to the gradient (see eq. 9).
-And this is precisely the definition of **support vectors**. All vectors that influence the position and orientation of the decision boundary (aka. hyperplane) are called support vectors. Removing or modifying a support vector would change the decision boundary and/or the margin of the boundary.
+And this is precisely the definition of <strong>support vectors</strong>. All vectors that influence the position and orientation of the decision boundary (aka. hyperplane) are called support vectors. Removing or modifying a support vector would change the decision boundary and/or the margin of the boundary.
 
-### Implementation of the linear SVM classifier with gradient descend
-Using eq. 4, 11, 12 and 13 the implementation of the SVM classifer becomes straight forward. We simply construct a wrapper class, which holds the hyperparamter $C$, the variables $w$ and $b$ determined during training and the training data (feature vectors $X$ and labels $y$). We then subsequently implement the methods corresponding to the above equations:
-- eq. 4: corresponds to *_margin*
-- eq. 11: corresponds to *_cost* (could also be called loss)
-- eq. 12, 13: are used in the *fit* method (see dL_dw and dL_db)
-- eq. 2: corresponds to *predict*
+<h3 style="margin-top: 20px;">Implementation of the linear SVM classifier with gradient descend</h3>Using eq. 4, 11, 12 and 13 the implementation of the SVM classifer becomes straight forward. We simply construct a wrapper class, which holds the hyperparamter $C$, the variables $w$ and $b$ determined during training and the training data (feature vectors $X$ and labels $y$). We then subsequently implement the methods corresponding to the above equations:
+<ul><li>eq. 4: corresponds to <i>_margin</i></li></ul><ul><li>eq. 11: corresponds to <i>_cost</i> (could also be called loss)</li></ul><ul><li>eq. 12, 13: are used in the <i>fit</i> method (see dL_dw and dL_db)</li></ul><ul><li>eq. 2: corresponds to <i>predict</i></li></ul>
+Here I called the right hand side of eq. 11 <strong>cost</strong> which produces a loss value for a given list of feature vectors $X$ and their labels $y$. 
 
-Here I called the right hand side of eq. 11 **cost** which produces a loss value for a given list of feature vectors $X$ and their labels $y$. 
-
-```python
+<pre><code class="language-python">
 import seaborn as sns
 from sklearn import preprocessing
 from sklearn.preprocessing import StandardScaler
@@ -140,10 +130,10 @@ class LinearSVM:
         return X.dot(self.w) - self.b
     
     def _margin(self, X, y):
-        return y * self._decision_fn(X)
+        return y <i> self._decision_fn(X)
     
     def _cost(self, margin):
-        return (1/2)* self.w.dot(self.w) + self.C * np.sum(np.maximum(0, 1-margin))
+        return (1/2)</i> self.w.dot(self.w) + self.C <i> np.sum(np.maximum(0, 1-margin))
     
     def fit(self, X, y, lr=1e-3, epochs=500):
         # retain X and y for plotting:
@@ -166,12 +156,12 @@ class LinearSVM:
             misclassified_idx = np.where(margin < 1)[0]
 
             # calculate the derivates (gradient)
-            dL_dw = self.w - self.C * y[misclassified_idx].dot(X[misclassified_idx])
-            dL_db = self.C * np.sum(y[misclassified_idx])
+            dL_dw = self.w - self.C </i> y[misclassified_idx].dot(X[misclassified_idx])
+            dL_db = self.C <i> np.sum(y[misclassified_idx])
 
             # update:
-            self.w -= lr* dL_dw
-            self.b -= lr* dL_db
+            self.w -= lr</i> dL_dw
+            self.b -= lr<i> dL_db
 
         self._support_vectors = np.where(self._margin(X, y) <= 1)[0]
 
@@ -181,14 +171,12 @@ class LinearSVM:
     def score(self, X, y):
         P = self.predict(X)
         return np.mean(y == P)
-```
-The gradient descend optimization happens completely in the *fit* method. In each iteration or *epoch* we first filter our data points, for those which do not satisfy eq. 4 and hence are not properly classified (or at least have a too low distance to the decision boundary). Then we use these data points together with eq. 12 and 13 to compute the gradient. Finally we update $w$ and $b$ to move a tiny step (according to the *learning rate*) opposite to the direction of the gradient. Essentially some realy basic gradient descend algorithm. After the training loop, we update the *support vectors*, which are those which remain below the margin of the decision boundary when the training finishes.\
-We add the *predict* function according to eq. 2. Finally *score* will just count for how many sample points in $X$ the prediction *P* equals the correct label $y$ and divide that number by the number of all samples.
+</code></pre>
+The gradient descend optimization happens completely in the </i>fit<i> method. In each iteration or </i>epoch<i> we first filter our data points, for those which do not satisfy eq. 4 and hence are not properly classified (or at least have a too low distance to the decision boundary). Then we use these data points together with eq. 12 and 13 to compute the gradient. Finally we update $w$ and $b$ to move a tiny step (according to the </i>learning rate<i>) opposite to the direction of the gradient. Essentially some realy basic gradient descend algorithm. After the training loop, we update the </i>support vectors<i>, which are those which remain below the margin of the decision boundary when the training finishes.<br>We add the </i>predict<i> function according to eq. 2. Finally </i>score<i> will just count for how many sample points in $X$ the prediction </i>P<i> equals the correct label $y$ and divide that number by the number of all samples.
 
-### Application of the linear SVM
-Let's now apply the SVM to some actual data. I will use the popular *Iris* data set, which contains features and labels of three distinct species of iris flowers. We use the scikit *LabelEncoder* to map the *species* label to a numerical category. However the *LabelEncoder* will by default return the labels 0 and 1, where 0 means not part of that species and 1 means is of species. Due to eq. 4 we require -1 and 1 as labels, so we have to apply our custom mapping.
+<h3 style="margin-top: 20px;">Application of the linear SVM</h3>Let's now apply the SVM to some actual data. I will use the popular </i>Iris<i> data set, which contains features and labels of three distinct species of iris flowers. We use the scikit </i>LabelEncoder<i> to map the </i>species<i> label to a numerical category. However the </i>LabelEncoder<i> will by default return the labels 0 and 1, where 0 means not part of that species and 1 means is of species. Due to eq. 4 we require -1 and 1 as labels, so we have to apply our custom mapping.
 
-```python
+<pre><code class="language-python">
 def load_data(cols):
     iris = sns.load_dataset("iris")
     iris = iris.tail(100)
@@ -208,11 +196,9 @@ def load_data(cols):
         X = X[cols]
  
     return X.values, y
-```
-For simplicity and easier plotting we will also only consider two features of each flower. Here I have choosen the features *petal length* and *petal width*. For the curious: The petal is some specific leaf of iris flowers:\
-![Petal](petal.webp "Image of an iris flower.")(scale=0.4)\
-Finally let's write the driver code to load the data and feed it through the SVM classifier.
-```python
+</code></pre>
+For simplicity and easier plotting we will also only consider two features of each flower. Here I have choosen the features </i>petal length<i> and </i>petal width<i>. For the curious: The petal is some specific leaf of iris flowers:<br><figure style="text-align: center;"><img src="/static/blog/petal.webp" alt="Petal" style='width:40%; height:auto;'><figcaption>Image of an iris flower.</figcaption></figure><br>Finally let's write the driver code to load the data and feed it through the SVM classifier.
+<pre><code class="language-python">
 if __name__ == "__main__":
     # only consider petal_length and petal_width:
     cols = ["petal_length", "petal_width"]
@@ -229,9 +215,9 @@ if __name__ == "__main__":
         model.plot_decision_boundary()
     
     plt.show()
-```
-I ran the SVM for multiple values of $C$ to show it's effect. Recall that $C$ controlls the tradeoff between the intertwined goals of maximizing the margin and minimizing the loss. We can plot the results by adding this *plot* method to the *LinearSVM* class:
-```python
+</code></pre>
+I ran the SVM for multiple values of $C$ to show it's effect. Recall that $C$ controlls the tradeoff between the intertwined goals of maximizing the margin and minimizing the loss. We can plot the results by adding this </i>plot<i> method to the </i>LinearSVM* class:
+<pre><code class="language-python">
 class LinearSVM:
     ...
 
@@ -271,24 +257,13 @@ class LinearSVM:
         plt.ylabel("petal_width", fontsize=12)
         plt.legend(loc='upper right')
         plt.grid(True, linestyle='--', alpha=0.6)
-```
-markdown{
-| ![Alt 1](../../blog/static/blog/C=1.png "") | ![Alt 2](../../blog/static/blog/C=5.png "") |
-|-----------------|----------------|
-| ![Alt 1](../../blog/static/blog/C=15.png "") | ![Alt 2](../../blog/static/blog/C=500.png "") |\
-}
-<!-- 
+</code></pre>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
     <img src="/static/blog/C=1.png" alt="Image 1" style="width: 100%; height: auto; display: block;">
     <img src="/static/blog/C=5.png" alt="Image 2" style="width: 100%; height: auto; display: block;">
     <img src="/static/blog/C=15.png" alt="Image 3" style="width: 100%; height: auto; display: block;">
     <img src="/static/blog/C=500.png" alt="Image 4" style="width: 100%; height: auto; display: block;">
 </div>
--->
 
-Note how a higher value for $C$ reduces the loss and thereby the misclassification on the training data. At the same time the margin of the decision boundary shrinks, which leaves more room for error on unseen data. So in a way $C$ allows us to control how stongly we fit the SVM to our training data. A high $C$ will yield good results on the training data, but only allow for a low margin, which is bad since new feature vectors are more easily misclassified.\
-
-### Coming up next
-At the beginning of this post we stated that we will focus on SVM's with linear decision boundaries. But depending on the data a curved decision boundary could make a lot of sense. Consider for example this data set:\
-![Petal](moons.png "Example for a non-linear separable data set.")(scale=0.6)\
-In the next part we will find out how we can expand our SVM to allow it to learn arbitrary decision boundaries.
+Note how a higher value for $C$ reduces the loss and thereby the misclassification on the training data. At the same time the margin of the decision boundary shrinks, which leaves more room for error on unseen data. So in a way $C$ allows us to control how stongly we fit the SVM to our training data. A high $C$ will yield good results on the training data, but only allow for a low margin, which is bad since new feature vectors are more easily misclassified.<br>
+<h3 style="margin-top: 20px;">Coming up next</h3>At the beginning of this post we stated that we will focus on SVM's with linear decision boundaries. But depending on the data a curved decision boundary could make a lot of sense. Consider for example this data set:<br><figure style="text-align: center;"><img src="/static/blog/moons.png" alt="Petal" style='width:60%; height:auto;'><figcaption>Example for a non-linear separable data set.</figcaption></figure><br>In the next part we will find out how we can expand our SVM to allow it to learn arbitrary decision boundaries.

@@ -9,10 +9,10 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'webius_site.settings')  # Repla
 django.setup()
 
 from pathlib import Path
+import argparse
 from django.utils.text import slugify
 from blog.models import Article
 from convert import convert_markdown
-
 
 def clear_database():
     """Clears all data from the database.
@@ -23,10 +23,10 @@ def clear_database():
     except Exception as e:
         print(f"An error occurred while clearing the database: {e}")
 
-def build_articles():
+def build_articles(debug):
     """Loops over all directories in ./articles and processes files to create Articles in the database.
     """
-    prev = None
+    last_article = None
     base_dir = Path('./articles')
 
     if not base_dir.exists():
@@ -54,7 +54,7 @@ def build_articles():
             # if prev is not None:
             #     article.previous_article = prev
             #     article.save() 
-            prev = article
+            last_article = article
             print(f"{'Created' if created else 'Updated'} Article: {title} from converted file")
             continue
 
@@ -78,25 +78,30 @@ def build_articles():
                 slug=slug,
                 defaults={'title': title, 'content': converted_content}
             )
-            # if title == "Building a Support Vector Machine from Scratch":
-            #     with open("debug_converted.txt", "w") as f:
-            #         f.write(converted_content)
-            
+            if debug:
+                with open(f"articles/debug/debug_{title}.txt", "w") as f:
+                    f.write(converted_content)
+
             # if prev is not None:
             #     article.previous_article = prev
             #     article.save() 
-            prev = article
+            last_article = article
             print(f"{'Created' if created else 'Updated'} Article: {title} from markdown file")
         else:
             print(f"No valid files found in directory: {subdir.name}")
 
-    # prev holds the last article created
     first_article = Article.objects.first()
     # set the last article as 'the previous' of the first 
-    first_article.prev = prev
+    first_article.prev = last_article
     first_article.save()
 
 
 if __name__ == "__main__":
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="Build articles for the Django application.")
+    parser.add_argument('--debug', action='store_true', help="Enable debug mode to save converted content to debug files.")
+    args = parser.parse_args()
+
+    # Clear the database and build articles
     clear_database()
-    build_articles()
+    build_articles(debug=args.debug)
