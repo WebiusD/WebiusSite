@@ -34,21 +34,26 @@ conversions = [
     ),
     # Image-Links:
     Conversion(
-        pattern=r'!\[(.*?)\]\((.*?)\s+"(.*?)"\)(?:\(s=(\d*\.?\d+)\))?',
+        pattern=r'!\[(.*?)\]\((.*?)\s+"(.*?)"\)(?:\(scale=(\d*\.?\d+)\))?',
         replacement_fn=lambda match: (
             f'<figure style="text-align: center;">'
             f'<img src="/static/blog/{match.group(2)}" alt="{match.group(1)}" '
-            f'{"style='width:" + str(int(float(match.group(4)) * 100)) + "%; height:auto;" if match.group(4) else ""}>'
+            f'{"style='width:" + str(int(float(match.group(4)) * 100)) + "%; height:auto;'" if match.group(4) else ""}>'
             f'<figcaption>{match.group(3)}</figcaption>'
             f'</figure>'
         )
     ),
-    # double astrisk emphasis:
+    # Tables:
+    Conversion(
+        pattern=r'^\|(.+?)\|\n\|([:-| ]+)\|\n((\|.*\|\n)+)',
+        replacement_fn=lambda match: convert_table(match.group(0))
+    ),
+    # double asterisk emphasis:
     Conversion(
         pattern=r'\*\*(.*?)\*\*',
         replacement_fn=lambda match: f'<strong>{match.group(1)}</strong>'
     ),
-    # single astrisk emphasis:
+    # single asterisk emphasis:
     Conversion(
         pattern=r'\*(.*?)\*',
         replacement_fn=lambda match: f'<em>{match.group(1)}</em>'
@@ -63,6 +68,24 @@ conversions = [
     ),
 ]
 
+def convert_table(markdown_table: str) -> str:
+    """Converts a Markdown table into an HTML table, ensuring that the content of each cell
+    is processed with the Markdown conversion rules.
+    """
+    lines = markdown_table.strip().split('\n')
+    headers = lines[0].strip('|').split('|')
+    separator = lines[1].strip('|').split('|')
+    rows = [line.strip('|').split('|') for line in lines[2:]]
+
+    # Build the HTML table
+    html = '<table>\n<thead>\n<tr>\n'
+    html += ''.join(f'<th>{convert_markdown(header.strip())}</th>' for header in headers)
+    html += '</tr>\n</thead>\n<tbody>\n'
+    for row in rows:
+        html += '<tr>\n' + ''.join(f'<td>{convert_markdown(cell.strip())}</td>' for cell in row) + '</tr>\n'
+    html += '</tbody>\n</table>'
+    return html
+
 def convert_markdown(orig):
     result = orig
     for conversion in conversions:
@@ -72,16 +95,6 @@ def convert_markdown(orig):
     result = re.sub(r'(<li>.*?</li>)', r'<ul>\1</ul>', result, flags=re.DOTALL)
     return result
 
-    # code_pattern = r'```(.*?)\n(.*?)\n```'
-
-    # def replace_code_block(match):
-    #     language = match.group(1).strip()
-    #     code_snippet = match.group(2)
-    #     replacement = f'<pre><code class="language-{language}">\n{code_snippet}\n</code></pre>'
-    #     return replacement
-
-    # result = re.sub(code_pattern, replace_code_block, orig, flags=re.DOTALL)
-    # return result
 
 def main():
     if len(sys.argv) < 2:

@@ -211,7 +211,7 @@ def load_data(cols):
     return X.values, y
 ```
 For simplicity and easier plotting we will also only consider two features of each flower. Here I have choosen the features *petal length* and *petal width*. For the curious: The petal is some specific leaf of iris flowers:\
-![Petal](petal.webp "Image of an iris flower.")\
+![Petal](petal.webp "Image of an iris flower.")(scale=0.5)
 \
 Finally let's write the driver code to load the data and feed it through the SVM classifier.
 ```python
@@ -275,9 +275,9 @@ class LinearSVM:
         plt.grid(True, linestyle='--', alpha=0.6)
 ```
 
-| ![Alt 1](C=1.png) | ![Alt 2](C=5.png) |
+| ![Alt 1](C=1.png "") | ![Alt 2](C=5.png "") |
 |-----------------|----------------|
-| ![Alt 1](C=15.png) | ![Alt 2](C=500.png) |
+| ![Alt 1](C=15.png "") | ![Alt 2](C=500.png "") |
 
 Note how a higher value for $C$ reduces the loss and thereby the misclassification on the training data. At the same time the margin of the decision boundary shrinks, which leaves more room for error on unseen data. So in a way $C$ allows us to control how stongly we fit the SVM to our training data. A high $C$ will yield good results on the training data, but only allow for a low margin, which is bad since new feature vectors are more easily misclassified.\
 

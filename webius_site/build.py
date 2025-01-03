@@ -78,6 +78,10 @@ def build_articles():
                 slug=slug,
                 defaults={'title': title, 'content': converted_content}
             )
+            # if title == "Building a Support Vector Machine from Scratch":
+            #     with open("debug_converted.txt", "w") as f:
+            #         f.write(converted_content)
+            
             # if prev is not None:
             #     article.previous_article = prev
             #     article.save() 
